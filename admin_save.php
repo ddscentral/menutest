@@ -145,9 +145,7 @@ if ($action == 'update') {
             $result = $statement->execute();
 
             if (!$result) {
-                echo "Error updating menu.\n";
-                echo "SQL = $sql\n";
-                echo $id . "_parent = " . $_POST[$id . "_parent"];
+                echo "Error updating menu $id.\n";
 
                 $was_error = true;
             } else {
