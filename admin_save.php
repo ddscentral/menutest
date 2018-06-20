@@ -119,11 +119,15 @@ if ($action == 'update') {
             if (is_child($parents, $parent, $id)) {
                 echo "Menu $id - menu cannot be the child of itself ($parent).\n";
 
+                $was_error = true;
+
                 continue;
             }
 
             if ((strlen($label) == 0)) {
                 echo "Missing label for menu $id.\n";
+
+                $was_error = true;
 
                 continue;
             }
@@ -198,7 +202,8 @@ if ($action == 'update') {
 
         if (!$result1 || !$result2) {
             echo "Error updating has_child.\n";
-            echo "SQL = $sql\n";
+            echo "SQL1 = $sql1\n";
+            echo "SQL2 = $sql2\n";
 
             redirect_to_main(true);
 
