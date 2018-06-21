@@ -6,6 +6,8 @@
  * Time: 16:05
  */
 
+require_once(__DIR__ . "/config.php");
+
 function is_child(&$parents, $id, $parent_id) {
     if (($id == 0) && ($parent_id != 0)) {
         return false;
@@ -55,6 +57,10 @@ function get_labels(&$conn) {
     return get_param($conn, 'label');
 }
 
+function get_urls(&$conn) {
+    return get_param($conn, 'url');
+}
+
 function has_children(&$parents, $id) {
     if ($id == 0) {
         return false;
@@ -81,7 +87,13 @@ function update_has_child(&$conn, $id, $has_child) {
 }
 
 function encode_label_as_url($label) {
-    return $label;
+    $ulabel = strtolower($label);
+    $ulabel = str_replace(" ", "-", $ulabel);
+    $ulabel = str_replace("/", "-", $ulabel);
+
+    $ulabel = rawurlencode($ulabel);
+
+    return $ulabel;
 }
 
 function redirect_to_main($error) {
@@ -92,4 +104,48 @@ function redirect_to_main($error) {
     } else {
         header("Location: admin.php");
     }
+}
+
+function validate_url(&$parents, &$urls, $parent, $url) {
+    foreach ($urls as $uid => $uurl) {
+        // check if this item has the same parent
+        if ($parents[$uid] == $parent) {
+            // if it does, check if the specified URL and this item's URL are the same
+            // TODO: Question: CASE SENSITIVE ?
+            if (strcmp($url, $uurl) == 0) {
+                // if they are, return false
+                return false;
+            }
+        }
+    }
+
+    return true;
+}
+
+function get_data_by_args(&$conn, $args = "") {
+    $sql = "SELECT * FROM `links`";
+
+    if (strlen($args) > 0) {
+        $sql .= " WHERE $args";
+    }
+
+    $result = $conn->query($sql);
+
+    $params = array();
+
+    if ($result->num_rows > 0) {
+        while ($row = $result->fetch_object()) {
+            $params[$row->id] = $row;
+        }
+    }
+
+    return $params;
+}
+
+function get_menus_by_parent_id(&$conn, $id) {
+    return get_data_by_args($conn, "parent_id = $id");
+}
+
+function connect_db() {
+    return new mysqli(SQL_SERVER_NAME, SQL_SERVER_USER, SQL_SERVER_PASS, SQL_SERVER_DBNAME);
 }

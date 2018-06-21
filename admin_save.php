@@ -6,12 +6,9 @@
  * Time: 14:58
  */
 
-// TODO: urls in the same level (of the same parent) must be unique
-
 require_once(__DIR__ . "/functions.php");
-require_once(__DIR__ . "/config.php");
 
-$conn = new mysqli(SQL_SERVER_NAME, SQL_SERVER_USER, SQL_SERVER_PASS, SQL_SERVER_DBNAME);
+$conn = connect_db();
 
 if ($conn->connect_error) {
     die("Connection failed : " . $conn->connect_error);
@@ -24,6 +21,7 @@ if ($action === false) {
 }
 
 $parents = get_parents($conn);
+$urls    = get_urls($conn);
 
 if ($action == 'create') {
     $label     = isset($_POST['new_label'])     ? $conn->real_escape_string(strip_tags($_POST['new_label'])) : false;
@@ -44,6 +42,16 @@ if ($action == 'create') {
 
     if (strlen($url) == 0) {
         $url = encode_label_as_url($label);
+    } else {
+        $url = rawurlencode($url);
+    }
+
+    if (!validate_url($parents, $urls, $parent, $url)) {
+        echo "Invalid URL for new menu - URLs must be unique on the same level.\n";
+
+        redirect_to_main(true);
+
+        return;
     }
 
     if (($parent != 0) && (!isset($parents[$parent]))) {
@@ -116,6 +124,14 @@ if ($action == 'update') {
             $parent    = isset($_POST[$id . "_parent"])   ? intval($_POST[$id . "_parent"])         : 0;
             $has_child = has_children($parents, $id)  ? 1                                       : 0;
 
+            if (!isset($parents[$id])) {
+                echo "Menu $id does not exist.\n";
+
+                $was_error = true;
+
+                continue;
+            }
+
             if (is_child($parents, $parent, $id)) {
                 echo "Menu $id - menu cannot be the child of itself ($parent).\n";
 
@@ -134,6 +150,16 @@ if ($action == 'update') {
 
             if (strlen($url) == 0) {
                 $url = encode_label_as_url($label);
+            } else {
+                $url = rawurlencode($url);
+            }
+
+            if (!validate_url($parents, $urls, $parent, $url)) {
+                echo "Invalid URL for menu $id - URLs must be unique on the same level.\n";
+
+                $was_error = true;
+
+                continue;
             }
 
             if ($bound == false) {

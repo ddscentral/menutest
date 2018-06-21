@@ -7,9 +7,8 @@
  */
 
 require_once(__DIR__ . "/functions.php");
-require_once(__DIR__ . "/config.php");
 
-$conn = new mysqli(SQL_SERVER_NAME, SQL_SERVER_USER, SQL_SERVER_PASS, SQL_SERVER_DBNAME);
+$conn = connect_db();
 
 if ($conn->connect_error) {
     die("Connection failed : " . $conn->connect_error);
