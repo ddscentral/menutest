@@ -106,10 +106,10 @@ function redirect_to_main($error) {
     }
 }
 
-function validate_url(&$parents, &$urls, $parent, $url) {
+function validate_url(&$parents, &$urls, $id, $parent, $url) {
     foreach ($urls as $uid => $uurl) {
         // check if this item has the same parent
-        if ($parents[$uid] == $parent) {
+        if (($parents[$uid] == $parent) && ($uid != $id)) {
             // if it does, check if the specified URL and this item's URL are the same
             // TODO: Question: CASE SENSITIVE ?
             if (strcmp($url, $uurl) == 0) {
@@ -143,9 +143,23 @@ function get_data_by_args(&$conn, $args = "") {
 }
 
 function get_menus_by_parent_id(&$conn, $id) {
-    return get_data_by_args($conn, "parent_id = $id");
+    return get_data_by_args($conn, "parent_id = $id && active = 1 ORDER BY sort");
 }
 
 function connect_db() {
     return new mysqli(SQL_SERVER_NAME, SQL_SERVER_USER, SQL_SERVER_PASS, SQL_SERVER_DBNAME);
+}
+
+function get_menu_types(&$conn) {
+    $sql = "SELECT * FROM `menutypes`";
+
+    $result = $conn->query($sql);
+
+    $menu_types = array();
+
+    while ($row = $result->fetch_object()) {
+        $menu_types[$row->id] = $row->name;
+    }
+
+    return $menu_types;
 }

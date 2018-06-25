@@ -119,7 +119,7 @@ if ($action == 'update') {
             $label     = isset($_POST[$id . "_label"])    ? strip_tags($_POST[$id . "_label"])      : "";
             $url       = isset($_POST[$id . "_url"])      ? strip_tags($_POST[$id . "_url"])        : "";
             $menu_type = isset($_POST[$id . "_menutype"]) ? intval($_POST[$id . "_menutype"])       : 0;
-            $sort      = isset($_POST[$id . "_sort"])     ? intval($_POST[$id . "_url"])            : "";
+            $sort      = isset($_POST[$id . "_sort"])     ? intval($_POST[$id . "_sort"])           : "";
             $active    = isset($_POST[$id . "_active"])   ? $_POST[$id . "_active"] == "on" ? 1 : 0 : 0;
             $parent    = isset($_POST[$id . "_parent"])   ? intval($_POST[$id . "_parent"])         : 0;
             $has_child = has_children($parents, $id)  ? 1                                       : 0;
@@ -154,7 +154,7 @@ if ($action == 'update') {
                 $url = rawurlencode($url);
             }
 
-            if (!validate_url($parents, $urls, $parent, $url)) {
+            if (!validate_url($parents, $urls, $id, $parent, $url)) {
                 echo "Invalid URL for menu $id - URLs must be unique on the same level.\n";
 
                 $was_error = true;
@@ -249,4 +249,33 @@ if ($action == 'update') {
     }
 
     redirect_to_main($was_error);
+}
+
+if ($action == 'create_menu') {
+    $menu_type_name = isset($_POST['menu_type_name']) ? $_POST['menu_type_name'] : false;
+
+    if (strlen($menu_type_name) == 0) {
+        echo "No menu type name entered.";
+
+        redirect_to_main(true);
+
+        return;
+    }
+
+    $menu_type_name = $conn->real_escape_string(strip_tags($menu_type_name));
+
+    $sql = "INSERT INTO `menutypes` (name) VALUES (\"" . $menu_type_name . "\")";
+
+    $result = $conn->query($sql);
+
+    if (!$result) {
+        echo "Error creating new menu type.";
+        echo "SQL = $sql";
+
+        redirect_to_main(true);
+
+        return;
+    }
+
+    redirect_to_main(false);
 }

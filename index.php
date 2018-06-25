@@ -21,9 +21,11 @@ function generate_menu_html($conn, $parent_id = 0, $lvl = 0, $base="") {
         foreach ($items as $id => $item) {
             echo "<li class='level" . $lvl . "'><a href='" . $base . $item->url . "'>" . $item->label . "</a></li>";
 
-            $new_base = $base . $item->url . '/';
+            if ($item->has_child) {
+                $new_base = $base . $item->url . '/';
 
-            generate_menu_html($conn, $id, $lvl++, $new_base);
+                generate_menu_html($conn, $id, $lvl++, $new_base);
+            }
         }
     echo "</ul>";
 
