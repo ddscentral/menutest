@@ -186,6 +186,7 @@ if ($action == 'update') {
     }
 
     if ($subact == "Delete") {
+        // TODO: sanitize input !
         $set = implode(", ", $save_menus);
 
         $sql = "DELETE FROM `links` WHERE id IN ($set)";
@@ -332,6 +333,7 @@ if ($action == 'update_menus') {
     }
 
     if ($subact == "Delete") {
+        // TODO: sanitize input !
         $set = implode(", ", $save_menu_types);
 
         $sql = "DELETE FROM `menutypes` WHERE id IN ($set)";
