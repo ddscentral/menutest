@@ -23,6 +23,8 @@ if ($action === false) {
 $parents = get_parents($conn);
 $urls    = get_urls($conn);
 
+// --------- CREATE ACTION ---------
+
 if ($action == 'create') {
     $label     = isset($_POST['new_label'])     ? $conn->real_escape_string(strip_tags($_POST['new_label'])) : false;
     $url       = isset($_POST['new_url'])       ? $conn->real_escape_string(strip_tags($_POST['new_url']))   : false;
@@ -91,7 +93,7 @@ VALUES ('$label', '$url', $menu_type, $sort, $active, $has_child, $parent)";
     return;
 }
 
-// I think parametrized queries would fit perfectly here - all update queries are exactly the same
+// --------- UPDATE ACTION ---------
 
 $was_error = false;
 
@@ -253,6 +255,8 @@ if ($action == 'update') {
     return;
 }
 
+// --------- CREATE MENU ACTION ---------
+
 if ($action == 'create_menu') {
     $menu_type_name = isset($_POST['menu_type_name']) ? $_POST['menu_type_name'] : false;
 
@@ -283,6 +287,8 @@ if ($action == 'create_menu') {
 
     return;
 }
+
+// --------- UPDATE MENU ACTION ---------
 
 if ($action == 'update_menus') {
     $save_menu_types = isset($_POST['menu_types']) ? $_POST['menu_types'] : false;
