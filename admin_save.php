@@ -249,6 +249,8 @@ if ($action == 'update') {
     }
 
     redirect_to_main($was_error);
+
+    return;
 }
 
 if ($action == 'create_menu') {
@@ -278,4 +280,69 @@ if ($action == 'create_menu') {
     }
 
     redirect_to_main(false);
+
+    return;
+}
+
+if ($action == 'update_menus') {
+    $save_menu_types = isset($_POST['menu_types']) ? $_POST['menu_types'] : false;
+
+    if (!is_array($save_menu_types)) {
+        echo "Missing parameters.";
+
+        redirect_to_main(true);
+
+        return;
+    }
+
+    $subact = isset($_POST['subact']) ? $_POST['subact'] : false;
+
+    if ($subact == "Save") {
+        foreach ($save_menu_types as $id) {
+            $id = intval($id);
+            $menu_type_name = isset($_POST['menu_type_' . $id]) ? $conn->real_escape_string(strip_tags($_POST['menu_type_' . $id])) : false;
+
+            if (strlen($menu_type_name) == 0) {
+                echo "Missing name for menu type $id";
+
+                $was_error = true;
+
+                continue;
+            }
+
+            $sql = "UPDATE `menutypes` SET name = \"$menu_type_name\" WHERE id = $id";
+
+            $result = $conn->query($sql);
+
+            if (!$result) {
+                echo "Error updating menu type $id";
+                echo "SQL = $sql";
+
+                $was_error = true;
+
+                continue;
+            }
+        }
+    }
+
+    if ($subact == "Delete") {
+        $set = implode(", ", $save_menu_types);
+
+        $sql = "DELETE FROM `menutypes` WHERE id IN ($set)";
+
+        $result = $conn->query($sql);
+
+        if (!$result) {
+            echo "Error deleting menu items";
+            echo "SQL = $sql";
+
+            redirect_to_main(true);
+
+            return;
+        }
+    }
+
+    redirect_to_main($was_error);
+
+    return;
 }
