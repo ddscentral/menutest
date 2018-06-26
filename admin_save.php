@@ -20,8 +20,10 @@ if ($action === false) {
     return;
 }
 
-$parents = get_parents($conn);
-$urls    = get_urls($conn);
+$parents_urls = get_data_by_args($conn, "links", array("id" ,"parent_id", "url"));
+
+$parents = get_parents($parents_urls);
+$urls    = get_urls($parents_urls);
 
 // --------- CREATE ACTION ---------
 

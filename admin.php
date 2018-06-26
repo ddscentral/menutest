@@ -14,8 +14,10 @@ if ($conn->connect_error) {
     die("Connection failed : " . $conn->connect_error);
 }
 
-$parents    = get_parents($conn);
-$labels     = get_labels($conn);
+$parents_labels = get_data_by_args($conn, "links", array("id", "parent_id", "label"));
+$parents    = get_parents($parents_labels);
+$labels     = get_labels($parents_labels);
+
 $menu_types = get_menu_types($conn);
 
 echo "<!DOCTYPE html>";

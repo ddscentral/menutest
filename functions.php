@@ -32,21 +32,26 @@ function is_child(&$parents, $id, $parent_id) {
     return is_child($parents, $parents[$id], $parent_id);
 }
 
-function get_parents(&$conn) {
-    return get_param($conn, 'parent_id');
+function get_parents(&$src_data) {
+    return get_param($src_data, 'parent_id');
 }
 
-function get_param(&$conn, $param)
-{
-    return get_data_by_args($conn, "links", array("id", $param), "", $param);
+function get_param(&$src_data, $param) {
+    $result = array();
+
+    foreach ($src_data as $id => $row) {
+        $result[$id] = $row->$param;
+    }
+
+    return $result;
 }
 
-function get_labels(&$conn) {
-    return get_param($conn, 'label');
+function get_labels(&$src_data) {
+    return get_param($src_data, 'label');
 }
 
-function get_urls(&$conn) {
-    return get_param($conn, 'url');
+function get_urls(&$src_data) {
+    return get_param($src_data, 'url');
 }
 
 function has_children(&$parents, $id) {
@@ -110,12 +115,16 @@ function validate_url(&$parents, &$urls, $id, $parent, $url) {
     return true;
 }
 
-function get_data_by_args(&$conn, $table, $what, $args = "", $field_id = "") {
+function get_data_by_args(&$conn, $table, $what, $args = "") {
     if (is_array($what)) {
-        $what = count($what) > 0 ? implode(", ", $what) : "*";
+        $request = count($what) > 0 ? implode(", ", $what) : "*";
+        $key_field = isset($what[0]) ? $what[0] : "id";
+    } else {
+        $request = $what;
+        $key_field = "id";
     }
 
-    $sql = "SELECT $what FROM `$table`";
+    $sql = "SELECT $request FROM `$table`";
 
     if (strlen($args) > 0) {
         $sql .= " WHERE $args";
@@ -127,7 +136,7 @@ function get_data_by_args(&$conn, $table, $what, $args = "", $field_id = "") {
 
     if ($result->num_rows > 0) {
         while ($row = $result->fetch_object()) {
-                $params[$row->id] = strlen($field_id) > 0 ? $row->$field_id : $row;
+            $params[$row->$key_field] = $row;
         }
     }
 
@@ -143,7 +152,9 @@ function connect_db() {
 }
 
 function get_menu_types(&$conn) {
-    return get_data_by_args($conn, "menutypes", "*", "", "name");
+    $data = get_data_by_args($conn, "menutypes", "*", "");
+
+    return get_param($data, "name");
 }
 
 function generate_dropdown($name, &$items, $selected_item) {
