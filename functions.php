@@ -38,19 +38,7 @@ function get_parents(&$conn) {
 
 function get_param(&$conn, $param)
 {
-    $sql = "SELECT id,$param FROM `links`";
-
-    $result = $conn->query($sql);
-
-    $params = array();
-
-    if ($result->num_rows > 0) {
-        while ($row = $result->fetch_object()) {
-            $params[$row->id] = $row->$param;
-        }
-    }
-
-    return $params;
+    return get_data_by_args($conn, "links", array("id", $param), "", $param);
 }
 
 function get_labels(&$conn) {
@@ -122,8 +110,12 @@ function validate_url(&$parents, &$urls, $id, $parent, $url) {
     return true;
 }
 
-function get_data_by_args(&$conn, $args = "") {
-    $sql = "SELECT * FROM `links`";
+function get_data_by_args(&$conn, $table, $what, $args = "", $field_id = "") {
+    if (is_array($what)) {
+        $what = count($what) > 0 ? implode(", ", $what) : "*";
+    }
+
+    $sql = "SELECT $what FROM `$table`";
 
     if (strlen($args) > 0) {
         $sql .= " WHERE $args";
@@ -135,7 +127,7 @@ function get_data_by_args(&$conn, $args = "") {
 
     if ($result->num_rows > 0) {
         while ($row = $result->fetch_object()) {
-            $params[$row->id] = $row;
+                $params[$row->id] = strlen($field_id) > 0 ? $row->$field_id : $row;
         }
     }
 
@@ -143,7 +135,7 @@ function get_data_by_args(&$conn, $args = "") {
 }
 
 function get_menus_by_parent_id(&$conn, $id) {
-    return get_data_by_args($conn, "parent_id = $id && active = 1 ORDER BY sort");
+    return get_data_by_args($conn, "links", "*", "parent_id = $id && active = 1 ORDER BY sort");
 }
 
 function connect_db() {
@@ -151,17 +143,7 @@ function connect_db() {
 }
 
 function get_menu_types(&$conn) {
-    $sql = "SELECT * FROM `menutypes`";
-
-    $result = $conn->query($sql);
-
-    $menu_types = array();
-
-    while ($row = $result->fetch_object()) {
-        $menu_types[$row->id] = $row->name;
-    }
-
-    return $menu_types;
+    return get_data_by_args($conn, "menutypes", "*", "", "name");
 }
 
 function generate_dropdown($name, &$items, $selected_item) {
