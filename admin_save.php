@@ -108,6 +108,8 @@ if ($action == 'update') {
         return;
     }
 
+    sanitize_array($conn,$save_menus, true);
+
     $subact = isset($_POST['subact']) ? $_POST['subact'] : "Save";
 
     if ($subact == "Save") {
@@ -186,7 +188,6 @@ if ($action == 'update') {
     }
 
     if ($subact == "Delete") {
-        // TODO: sanitize input !
         $set = implode(", ", $save_menus);
 
         $sql = "DELETE FROM `links` WHERE id IN ($set)";
@@ -302,9 +303,14 @@ if ($action == 'update_menus') {
         return;
     }
 
+    sanitize_array($conn,$save_menu_types, true);
+
     $subact = isset($_POST['subact']) ? $_POST['subact'] : false;
 
     if ($subact == "Save") {
+        $statement = $conn->prepare("UPDATE `menutypes` SET name = ? WHERE id = ?");
+        $bound = false;
+
         foreach ($save_menu_types as $id) {
             $id = intval($id);
             $menu_type_name = isset($_POST['menu_type_' . $id]) ? $conn->real_escape_string(strip_tags($_POST['menu_type_' . $id])) : false;
@@ -317,13 +323,15 @@ if ($action == 'update_menus') {
                 continue;
             }
 
-            $sql = "UPDATE `menutypes` SET name = \"$menu_type_name\" WHERE id = $id";
+            if (!$bound) {
+                $statement->bind_param("si", $menu_type_name, $id);
+                $bound = true;
+            }
 
-            $result = $conn->query($sql);
+            $result = $statement->execute();
 
             if (!$result) {
                 echo "Error updating menu type $id.\n";
-                echo "SQL = $sql\n";
 
                 $was_error = true;
 
@@ -333,7 +341,6 @@ if ($action == 'update_menus') {
     }
 
     if ($subact == "Delete") {
-        // TODO: sanitize input !
         $set = implode(", ", $save_menu_types);
 
         $sql = "DELETE FROM `menutypes` WHERE id IN ($set)";

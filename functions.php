@@ -179,3 +179,13 @@ function generate_dropdown($name, &$items, $selected_item) {
 
     echo "</select>\n";
 }
+
+function sanitize_array(&$conn, &$arr, $ints = false) {
+    if (count($arr) == 0) {
+        return;
+    }
+
+    foreach ($arr as $id => $elem) {
+        $arr[$id] = $ints ? intval($elem) : $conn->real_escape_string(strip_tags($elem));
+    }
+}
