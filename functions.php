@@ -163,3 +163,19 @@ function get_menu_types(&$conn) {
 
     return $menu_types;
 }
+
+function generate_dropdown($name, &$items, $selected_item) {
+    if (count($items) == 0) {
+        return;
+    }
+
+    echo "<select name='$name'>\n";
+
+    foreach ($items as $id => $item) {
+        $selected = $id == $selected_item ? " selected='selected'" : "";
+
+        echo "<option value='$id'$selected>$item</option>\n";
+    }
+
+    echo "</select>\n";
+}

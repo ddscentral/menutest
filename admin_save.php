@@ -68,7 +68,7 @@ VALUES ('$label', '$url', $menu_type, $sort, $active, $has_child, $parent)";
     $result = $conn->query($sql);
 
     if (!$result) {
-        echo "Error creating new menu.";
+        echo "Error creating new menu.\n";
         echo "SQL = $sql\n";
 
         redirect_to_main(true);
@@ -257,7 +257,7 @@ if ($action == 'create_menu') {
     $menu_type_name = isset($_POST['menu_type_name']) ? $_POST['menu_type_name'] : false;
 
     if (strlen($menu_type_name) == 0) {
-        echo "No menu type name entered.";
+        echo "No menu type name entered.\n";
 
         redirect_to_main(true);
 
@@ -271,8 +271,8 @@ if ($action == 'create_menu') {
     $result = $conn->query($sql);
 
     if (!$result) {
-        echo "Error creating new menu type.";
-        echo "SQL = $sql";
+        echo "Error creating new menu type.\n";
+        echo "SQL = $sql\n";
 
         redirect_to_main(true);
 
@@ -288,7 +288,7 @@ if ($action == 'update_menus') {
     $save_menu_types = isset($_POST['menu_types']) ? $_POST['menu_types'] : false;
 
     if (!is_array($save_menu_types)) {
-        echo "Missing parameters.";
+        echo "Missing parameters.\n";
 
         redirect_to_main(true);
 
@@ -303,7 +303,7 @@ if ($action == 'update_menus') {
             $menu_type_name = isset($_POST['menu_type_' . $id]) ? $conn->real_escape_string(strip_tags($_POST['menu_type_' . $id])) : false;
 
             if (strlen($menu_type_name) == 0) {
-                echo "Missing name for menu type $id";
+                echo "Missing name for menu type $id.\n";
 
                 $was_error = true;
 
@@ -315,8 +315,8 @@ if ($action == 'update_menus') {
             $result = $conn->query($sql);
 
             if (!$result) {
-                echo "Error updating menu type $id";
-                echo "SQL = $sql";
+                echo "Error updating menu type $id.\n";
+                echo "SQL = $sql\n";
 
                 $was_error = true;
 
@@ -333,8 +333,8 @@ if ($action == 'update_menus') {
         $result = $conn->query($sql);
 
         if (!$result) {
-            echo "Error deleting menu items";
-            echo "SQL = $sql";
+            echo "Error deleting menu types. Make sure none of these menu types are used.\n";
+            echo "SQL = $sql\n";
 
             redirect_to_main(true);
 
